@@ -1,0 +1,225 @@
+local ScreenGui = Instance.new("ScreenGui")
+local MainFrame = Instance.new("Frame")
+local MainFrameCorner = Instance.new("UICorner")
+local Title = Instance.new("TextLabel")
+local TitleCorner = Instance.new("UICorner")
+local CloseButton = Instance.new("TextButton")
+local CloseButtonCorner = Instance.new("UICorner")
+local ScrollingFrame = Instance.new("ScrollingFrame")
+local ScrollingFrameCorner = Instance.new("UICorner")
+local UIListLayout = Instance.new("UIListLayout")
+local ToggleButton = Instance.new("ImageButton")
+local UserInputService = game:GetService("UserInputService")
+local ChapterFrame = Instance.new("Frame")
+local ChapterFrameCorner = Instance.new("UICorner")
+local BackButton = Instance.new("TextButton")
+local BackButtonCorner = Instance.new("UICorner")
+local AutoPlaceButton = Instance.new("TextButton")
+local AutoPlaceButtonCorner = Instance.new("UICorner")
+local AutoUseStratButton = Instance.new("TextButton")
+local AutoUseStratButtonCorner = Instance.new("UICorner")
+local UIVisible = true
+local Dragging, DragInput, DragStart, StartPos
+local AutoPlaceEnabled = false
+local AutoUseStratEnabled = false
+local ToggleUI = Instance.new("ImageButton")
+local Chapters = {"Chapter 1", "Chapter 2", "Chapter 3", "Chapter 4", "Chapter 5", "Chapter 6"}
+
+-- Properties
+ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+
+-- Main Frame
+MainFrame.Size = UDim2.new(0, 700, 0, 300)
+MainFrame.Position = UDim2.new(0.5, -350, 0.5, -150)
+MainFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+MainFrame.BorderSizePixel = 2
+MainFrame.BorderColor3 = Color3.fromRGB(50, 50, 50)
+MainFrame.BackgroundTransparency = 0.1
+MainFrame.Active = true
+MainFrame.Parent = ScreenGui
+
+MainFrameCorner.CornerRadius = UDim.new(0, 10)
+MainFrameCorner.Parent = MainFrame
+
+-- Title
+Title.Size = UDim2.new(1, 0, 0, 40)
+Title.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+Title.Text = "SkibiDefense"
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.TextScaled = true
+Title.Font = Enum.Font.GothamBold
+Title.Parent = MainFrame
+
+TitleCorner.CornerRadius = UDim.new(0, 10)
+TitleCorner.Parent = Title
+
+-- Close Button
+CloseButton.Size = UDim2.new(0, 30, 0, 30)
+CloseButton.Position = UDim2.new(1, -35, 0, 5)
+CloseButton.Text = "✖"
+CloseButton.TextColor3 = Color3.fromRGB(255, 0, 0)
+CloseButton.BackgroundTransparency = 0
+CloseButton.BackgroundColor3 = Color3.fromRGB(50, 0, 0)
+CloseButton.Font = Enum.Font.GothamBold
+CloseButton.TextScaled = true
+CloseButton.Parent = MainFrame
+
+CloseButtonCorner.CornerRadius = UDim.new(0, 5)
+CloseButtonCorner.Parent = CloseButton
+
+CloseButton.MouseButton1Click:Connect(function()
+	ScreenGui:Destroy()
+end)
+
+-- Scrolling Frame (Danh sách Chapter)
+ScrollingFrame.Size = UDim2.new(1, 0, 1, -50)
+ScrollingFrame.Position = UDim2.new(0, 0, 0, 50)
+ScrollingFrame.CanvasSize = UDim2.new(0, 0, 2, 0)
+ScrollingFrame.ScrollBarThickness = 8
+ScrollingFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+ScrollingFrame.Parent = MainFrame
+
+ScrollingFrameCorner.CornerRadius = UDim.new(0, 10)
+ScrollingFrameCorner.Parent = ScrollingFrame
+
+UIListLayout.Parent = ScrollingFrame
+UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+UIListLayout.Padding = UDim.new(0, 10)
+
+-- Tạo các nút Chapter (chữ to hơn)
+for _, chapter in ipairs(Chapters) do
+	local ChapterButton = Instance.new("TextButton")
+	ChapterButton.Size = UDim2.new(1, -20, 0, 60)
+	ChapterButton.Position = UDim2.new(0, 10, 0, 0)
+	ChapterButton.Text = chapter
+	ChapterButton.TextSize = 28
+	ChapterButton.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+	ChapterButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+	ChapterButton.Font = Enum.Font.GothamBold
+	ChapterButton.Parent = ScrollingFrame
+
+	local ChapterButtonCorner = Instance.new("UICorner")
+	ChapterButtonCorner.CornerRadius = UDim.new(0, 8)
+	ChapterButtonCorner.Parent = ChapterButton
+
+	ChapterButton.MouseButton1Click:Connect(function()
+		ChapterFrame.Visible = true
+		MainFrame.Visible = false
+	end)
+end
+
+-- Chapter Frame (Bảng đen khi chọn Chapter)
+ChapterFrame.Size = UDim2.new(0, 600, 0, 300)
+ChapterFrame.Position = UDim2.new(0.5, -300, 0.5, -150)
+ChapterFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+ChapterFrame.Visible = false
+ChapterFrame.Parent = ScreenGui
+
+ChapterFrameCorner.CornerRadius = UDim.new(0, 10)
+ChapterFrameCorner.Parent = ChapterFrame
+
+-- Auto Place Button (có hình dạng giống các nút Chapter)
+AutoPlaceButton.Size = UDim2.new(0, 300, 0, 60)
+AutoPlaceButton.Position = UDim2.new(0.5, -150, 0.3, 0)
+AutoPlaceButton.Text = "Auto Place Unit"
+AutoPlaceButton.TextSize = 28
+AutoPlaceButton.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+AutoPlaceButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+AutoPlaceButton.Font = Enum.Font.GothamBold
+AutoPlaceButton.Parent = ChapterFrame
+
+AutoPlaceButtonCorner.CornerRadius = UDim.new(0, 8)
+AutoPlaceButtonCorner.Parent = AutoPlaceButton
+
+-- Auto Use Strat Button (có hình dạng giống các nút Chapter)
+AutoUseStratButton.Size = UDim2.new(0, 300, 0, 60)
+AutoUseStratButton.Position = UDim2.new(0.5, -150, 0.45, 0)
+AutoUseStratButton.Text = "Auto Use Strat (Only Can Use On Menu)"
+AutoUseStratButton.TextSize = 28
+AutoUseStratButton.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+AutoUseStratButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+AutoUseStratButton.Font = Enum.Font.GothamBold
+AutoUseStratButton.Parent = ChapterFrame
+
+AutoUseStratButtonCorner.CornerRadius = UDim.new(0, 8)
+AutoUseStratButtonCorner.Parent = AutoUseStratButton
+
+-- Back Button (để quay lại UI chính)
+BackButton.Size = UDim2.new(0, 150, 0, 50)
+BackButton.Position = UDim2.new(0.5, -75, 0.75, 0)
+BackButton.Text = "Back"
+BackButton.TextSize = 28
+BackButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+BackButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+BackButton.Font = Enum.Font.GothamBold
+BackButton.Parent = ChapterFrame
+
+BackButtonCorner.CornerRadius = UDim.new(0, 8)
+BackButtonCorner.Parent = BackButton
+
+BackButton.MouseButton1Click:Connect(function()
+	ChapterFrame.Visible = false
+	MainFrame.Visible = true
+end)
+
+-- Bật/Tắt UI bằng nút Ctrl và ToggleUI
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+	if input.KeyCode == Enum.KeyCode.LeftControl and not gameProcessed then
+		UIVisible = not UIVisible
+		MainFrame.Visible = UIVisible
+		ChapterFrame.Visible = false
+	end
+end)
+
+ToggleUI.Size = UDim2.new(0, 50, 0, 50)
+ToggleUI.Position = UDim2.new(0, 10, 0.9, -60)
+ToggleUI.Image = "rbxassetid://11818627075"
+ToggleUI.BackgroundTransparency = 1
+ToggleUI.Parent = ScreenGui
+
+ToggleUI.MouseButton1Click:Connect(function()
+	UIVisible = not UIVisible
+	MainFrame.Visible = UIVisible
+end)
+
+-- Kéo di chuyển UI bằng chuột trái
+MainFrame.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		Dragging = true
+		DragStart = input.Position
+		StartPos = MainFrame.Position
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then
+				Dragging = false
+			end
+		end)
+	end
+end)
+
+MainFrame.InputChanged:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseMovement then
+		DragInput = input
+	end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+	if input == DragInput and Dragging then
+		local Delta = input.Position - DragStart
+		MainFrame.Position = UDim2.new(StartPos.X.Scale, StartPos.X.Offset + Delta.X, StartPos.Y.Scale, StartPos.Y.Offset + Delta.Y)
+	end
+end)
+
+-- Hàm chuyển đổi màu cho các nút trong bảng đen khi ấn (hiện màu xanh dương khi bật)
+local function toggleButtonFunc(button, state)
+	state = not state
+	button.BackgroundColor3 = state and Color3.fromRGB(0, 100, 255) or Color3.fromRGB(45, 45, 45)
+	return state
+end
+
+AutoPlaceButton.MouseButton1Click:Connect(function()
+	AutoPlaceEnabled = toggleButtonFunc(AutoPlaceButton, AutoPlaceEnabled)
+end)
+
+AutoUseStratButton.MouseButton1Click:Connect(function()
+	AutoUseStratEnabled = toggleButtonFunc(AutoUseStratButton, AutoUseStratEnabled)
+end)
